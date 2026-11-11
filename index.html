@@ -22,6 +22,7 @@
       --sub-text: #64748b;
       --border: #e2e8f0;
       --danger: #ef4444;
+      --success: #10b981;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -146,8 +147,10 @@
     }
 
     /* カレンダー表示エリア */
-    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .calendar-header button { background: none; border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
+    .calendar-nav-group { display: flex; gap: 4px; }
+    .calendar-header button { background: none; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+    .calendar-header .jump-btn { background: var(--primary-light); color: #92400e; border-color: var(--primary); font-weight: bold; }
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
     .calendar-day-head { font-weight: bold; font-size: 0.8rem; padding: 6px 0; color: var(--sub-text); }
     .calendar-day {
@@ -156,6 +159,25 @@
     .calendar-day.other-month { opacity: 0.3; }
     .calendar-day .day-num { font-weight: bold; }
     .calendar-day .event-badge { font-size: 0.65rem; line-height: 1; margin-top: 2px; }
+
+    /* 保存完了トースト通知 */
+    #toastMessage {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: var(--success);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+    #toastMessage.show {
+      transform: translateX(-50%) translateY(0);
+    }
 
     /* ボトムナビ */
     nav.bottom-nav {
@@ -178,6 +200,9 @@
   </style>
 </head>
 <body>
+
+  <!-- 保存完了トースト通知 -->
+  <div id="toastMessage">✨ 保存しました！</div>
 
   <header>
     <div class="header-title">
@@ -224,9 +249,7 @@
 
         <div class="form-group">
           <label>誰に贈る？（宛先タグ）</label>
-          <div class="tags-container" id="tagsContainer">
-            <!-- JavaScriptで動的描画 -->
-          </div>
+          <div class="tags-container" id="tagsContainer"></div>
           
           <div class="custom-tag-row" id="customTagRow">
             <input type="text" id="customTagInput" placeholder="新しいタグ名を入力">
@@ -250,14 +273,20 @@
     <!-- カレンダー画面 -->
     <div id="calendar-view" style="display: none;">
       <div class="section-title">📅 カレンダー</div>
-      <div class="search-box">
+      
+      <!-- 検索窓（日付をタップすると自動で消える仕様） -->
+      <div class="search-box" id="calendarSearchBox">
         <input type="search" id="calendarSearch" placeholder="🔍 メッセージ検索..." oninput="renderCalendarTimeline()">
       </div>
+
       <div class="card">
         <div class="calendar-header">
-          <button onclick="changeMonth(-1)">◀ 前月</button>
-          <strong id="calendarMonthTitle">2026年11月</strong>
-          <button onclick="changeMonth(1)">次月 ▶</button>
+          <div class="calendar-nav-group">
+            <button onclick="changeMonth(-1)">◀ 前月</button>
+            <button class="jump-btn" onclick="jumpOneYear()">＋1年後へ</button>
+            <button onclick="changeMonth(1)">次月 ▶</button>
+          </div>
+          <strong id="calendarMonthTitle" style="font-size: 0.95rem;">2026年11月</strong>
         </div>
         <div class="calendar-grid" id="calendarGrid"></div>
       </div>
@@ -296,7 +325,6 @@
     let currentCalendarDate = new Date();
     let selectedCalendarDayStr = '';
 
-    // タグの初期リスト（localStorageに保存・読み込み）
     let tagsList = JSON.parse(localStorage.getItem('timeCapsuleTags') || JSON.stringify(['1年後の自分', '冬の自分', '次の来客前', '契約更新時']));
     let selectedTag = tagsList[0] || '1年後の自分';
 
@@ -318,7 +346,6 @@
     targetDeliveryDateStr = formatDate(defaultDate);
     targetDateDisplay.innerText = targetDeliveryDateStr;
 
-    // タグ一覧の描画
     function renderTags() {
       const container = document.getElementById('tagsContainer');
       container.innerHTML = '';
@@ -328,7 +355,6 @@
         chip.className = `tag-chip ${selectedTag === tag ? 'selected' : ''}`;
         
         let html = `<span onclick="selectTag('${tag}')">${tag}</span>`;
-        // 初期タグ以外、またはタグが複数ある場合は削除用×を表示
         if (tagsList.length > 1) {
           html += `<span class="tag-delete-x" onclick="removeTag(event, '${tag}')">×</span>`;
         }
@@ -336,7 +362,6 @@
         container.appendChild(chip);
       });
 
-      // 追加ボタン
       const addBtn = document.createElement('button');
       addBtn.type = 'button';
       addBtn.className = 'tag-add-btn';
@@ -430,6 +455,7 @@
       }
     }
 
+    // 保存処理＆入力リセット＆トースト通知
     function saveItem() {
       const text = document.getElementById('memoText').value;
       if (!text && !base64Image) {
@@ -452,13 +478,27 @@
       items.unshift(newItem);
       localStorage.setItem('timeCapsuleItems', JSON.stringify(items));
       
+      // 入力内容を完全にクリア（残さないようにリセット）
       document.getElementById('memoText').value = '';
       base64Image = null;
       document.getElementById('file-name').innerText = '';
       document.getElementById('imageInput').value = '';
+      customTagInput.value = '';
+      customTagRow.classList.remove('active');
 
-      alert('タイムカプセルに保存しました！');
+      // 保存しました通知（トースト）を表示
+      showToast();
+
+      // タイムラインへ移動
       switchTab('timeline', document.querySelectorAll('.nav-item')[0]);
+    }
+
+    function showToast() {
+      const toast = document.getElementById('toastMessage');
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
     }
 
     function deleteItem(id) {
@@ -487,6 +527,9 @@
       } else if (tabName === 'calendar') {
         document.getElementById('calendar-view').style.display = 'block';
         if(el) el.classList.add('active');
+        // カレンダーを開いたときは検索窓を再表示
+        document.getElementById('calendarSearchBox').style.display = 'block';
+        document.getElementById('calendarSearch').value = '';
         renderCalendar();
       } else if (tabName === 'photos') {
         document.getElementById('photos-view').style.display = 'block';
@@ -530,6 +573,12 @@
 
     function changeMonth(diff) {
       currentCalendarDate.setMonth(currentCalendarDate.getMonth() + diff);
+      renderCalendar();
+    }
+
+    // ＋1年後へ一気にジャンプする機能
+    function jumpOneYear() {
+      currentCalendarDate.setFullYear(currentCalendarDate.getFullYear() + 1);
       renderCalendar();
     }
 
@@ -580,8 +629,14 @@
       renderCalendarTimeline();
     }
 
+    // 日付をタップしたときに検索窓を消して、選択した日の表示に切り替える
     function selectCalendarDay(dateStr) {
       selectedCalendarDayStr = dateStr;
+      
+      // 検索窓の文字を空にして、検索ボックス自体を非表示にする
+      document.getElementById('calendarSearch').value = '';
+      document.getElementById('calendarSearchBox').style.display = 'none';
+
       document.getElementById('selectedDateTitle').innerText = `${dateStr} のメッセージ`;
       renderCalendarTimeline();
     }
@@ -600,10 +655,13 @@
         );
       } else if (selectedCalendarDayStr) {
         filtered = filtered.filter(i => i.createdDate === selectedCalendarDayStr || i.targetDate === selectedCalendarDayStr);
+      } else {
+        // 初期状態または日付未選択のときは何も絞り込まないか全件表示
+        filtered = [];
       }
 
       if (filtered.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">メッセージはありません。</p>';
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">メッセージはありません。（カレンダーの日付をタップしてください）</p>';
         return;
       }
 
@@ -651,7 +709,6 @@
       });
     }
 
-    // 起動時にタグ一覧をレンダリング
     renderTags();
   </script>
 </body>
