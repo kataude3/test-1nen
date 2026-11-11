@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>一年後の自分へ</title>
   
-  <!-- ホーム画面追加用の設定 -->
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="icon" href="icon.png" type="image/png">
   <meta name="apple-mobile-web-app-title" content="一年後の自分へ">
@@ -15,19 +14,16 @@
 
   <style>
     :root {
-      --primary: #d97706; /* 優しいオレンジ・ゴールド系 */
+      --primary: #d97706;
       --primary-light: #fef3c7;
       --bg: #fffbf5;
       --card-bg: #ffffff;
       --text: #1e293b;
       --sub-text: #64748b;
       --border: #e2e8f0;
+      --danger: #ef4444;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
@@ -53,11 +49,7 @@
       align-items: center;
       gap: 6px;
     }
-    .header-title p {
-      font-size: 0.75rem;
-      color: var(--sub-text);
-      margin-top: 2px;
-    }
+    .header-title p { font-size: 0.75rem; color: var(--sub-text); margin-top: 2px; }
     .notification-btn {
       background: var(--primary-light);
       color: #b45309;
@@ -66,16 +58,9 @@
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 4px;
       cursor: pointer;
     }
-    main {
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 16px;
-    }
+    main { max-width: 500px; margin: 0 auto; padding: 16px; }
     .section-title {
       font-size: 1rem;
       font-weight: bold;
@@ -93,31 +78,21 @@
       margin-bottom: 20px;
       border: 1px solid #fef3c7;
     }
-    .form-group {
-      margin-bottom: 16px;
-    }
-    label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-    textarea {
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    textarea, input[type="text"], input[type="search"] {
       width: 100%;
       padding: 12px;
       border: 1px solid var(--border);
       border-radius: 12px;
       font-size: 0.95rem;
       background-color: #fafaf9;
-      resize: vertical;
-      min-height: 90px;
     }
-    textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      background-color: #ffffff;
+    textarea { resize: vertical; min-height: 90px; }
+    textarea:focus, input[type="text"]:focus, input[type="search"]:focus {
+      outline: none; border-color: var(--primary); background-color: #ffffff;
     }
+    .search-box { margin-bottom: 12px; }
     .photo-upload-box {
       border: 2px dashed #cbd5e1;
       border-radius: 12px;
@@ -132,15 +107,8 @@
       align-items: center;
       gap: 6px;
     }
-    .photo-upload-box input {
-      display: none;
-    }
-    .options-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 8px;
-    }
+    .photo-upload-box input { display: none; }
+    .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
     .option-btn {
       background: #ffffff;
       border: 1px solid var(--border);
@@ -149,146 +117,57 @@
       font-size: 0.85rem;
       text-align: center;
       cursor: pointer;
-      color: var(--text);
-      transition: all 0.2s;
     }
-    .option-btn.selected {
-      background: var(--primary-light);
-      border-color: var(--primary);
-      color: #92400e;
-      font-weight: bold;
+    .option-btn.selected { background: var(--primary-light); border-color: var(--primary); color: #92400e; font-weight: bold; }
+    .date-input-container { margin-top: 8px; display: none; }
+    .date-input-container.active { display: block; }
+    input[type="date"] {
+      width: 100%; padding: 10px; border: 1px solid var(--primary); border-radius: 10px; font-size: 1rem; background-color: #fff;
     }
     .date-display {
-      background: #fafaf9;
-      border: 1px solid var(--border);
-      padding: 10px;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 0.95rem;
-      color: var(--sub-text);
-      margin-top: 8px;
+      background: #fafaf9; border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; font-size: 0.95rem; color: var(--sub-text); margin-top: 8px;
     }
-    .tags-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+    .tags-container { display: flex; flex-wrap: wrap; gap: 8px; }
     .tag-chip {
-      background: #ffffff;
-      border: 1px solid var(--border);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      color: var(--text);
+      background: #ffffff; border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; cursor: pointer;
     }
-    .tag-chip.selected {
-      background: var(--primary-light);
-      border-color: var(--primary);
-      color: #92400e;
-      font-weight: bold;
-    }
+    .tag-chip.selected { background: var(--primary-light); border-color: var(--primary); color: #92400e; font-weight: bold; }
+    .custom-tag-container { margin-top: 8px; display: none; }
+    .custom-tag-container.active { display: block; }
     .btn-submit {
-      width: 100%;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
-      margin-top: 10px;
+      width: 100%; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2); margin-top: 10px;
     }
-    /* ボトムナビゲーション */
+
+    /* カレンダー表示エリア */
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .calendar-header button { background: none; border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+    .calendar-day-head { font-weight: bold; font-size: 0.8rem; padding: 6px 0; color: var(--sub-text); }
+    .calendar-day {
+      background: white; border: 1px solid var(--border); border-radius: 8px; min-height: 48px; padding: 4px 2px; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative;
+    }
+    .calendar-day.other-month { opacity: 0.3; }
+    .calendar-day .day-num { font-weight: bold; }
+    .calendar-day .event-badge { font-size: 0.65rem; line-height: 1; margin-top: 2px; }
+
+    /* ボトムナビ */
     nav.bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 8px 0;
-      height: 70px;
-      z-index: 100;
+      position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; height: 70px; z-index: 100;
     }
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 0.75rem;
-      color: var(--sub-text);
-      cursor: pointer;
-      background: none;
-      border: none;
-      flex: 1;
-    }
-    .nav-item.active {
-      color: var(--primary);
-      font-weight: bold;
-    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; color: var(--sub-text); background: none; border: none; flex: 1; cursor: pointer; }
+    .nav-item.active { color: var(--primary); font-weight: bold; }
     .nav-center-btn {
-      width: 50px;
-      height: 50px;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.5rem;
-      box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);
-      position: relative;
-      top: -10px;
-      cursor: pointer;
-      border: none;
+      width: 50px; height: 50px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3); position: relative; top: -10px; border: none; cursor: pointer;
     }
-    .timeline {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .item-card {
-      background: white;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-      border: 1px solid var(--border);
-      padding: 16px;
-    }
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .item-badge {
-      background: var(--primary-light);
-      color: #92400e;
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: bold;
-    }
-    .item-date {
-      font-size: 0.75rem;
-      color: var(--sub-text);
-    }
-    .item-text {
-      font-size: 0.95rem;
-      white-space: pre-wrap;
-      margin-top: 6px;
-    }
-    .item-img {
-      width: 100%;
-      max-height: 200px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
+    .timeline { display: flex; flex-direction: column; gap: 16px; }
+    .item-card { background: white; border-radius: 14px; border: 1px solid var(--border); padding: 16px; }
+    .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .item-badge { background: var(--primary-light); color: #92400e; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+    .item-header-right { display: flex; align-items: center; gap: 8px; }
+    .item-date { font-size: 0.75rem; color: var(--sub-text); }
+    .delete-btn { background: none; border: none; color: var(--danger); font-size: 0.75rem; cursor: pointer; }
+    .item-text { font-size: 0.95rem; white-space: pre-wrap; margin-top: 6px; }
+    .item-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -302,9 +181,9 @@
   </header>
 
   <main>
+    <!-- 作成画面 -->
     <div id="create-view">
       <div class="section-title">✍️ 未来へのメッセージを作成</div>
-      
       <div class="card">
         <div class="form-group">
           <label>メモ内容</label>
@@ -329,7 +208,11 @@
             <button type="button" class="option-btn selected" onclick="setPeriod('1年後', this)">1年後</button>
             <button type="button" class="option-btn" onclick="setPeriod('日付指定', this)" style="grid-column: span 2;">日付を直接指定</button>
           </div>
-          <div class="date-display" id="targetDateDisplay">2027/11/11</div>
+          
+          <div class="date-display" id="targetDateDisplay"></div>
+          <div class="date-input-container" id="dateInputContainer">
+            <input type="date" id="customDatepicker" onchange="updateCustomDate(this)">
+          </div>
         </div>
 
         <div class="form-group">
@@ -339,6 +222,11 @@
             <div class="tag-chip" onclick="setTag('冬の自分', this)">冬の自分</div>
             <div class="tag-chip" onclick="setTag('次の来客前', this)">次の来客前</div>
             <div class="tag-chip" onclick="setTag('契約更新時', this)">契約更新時</div>
+            <div class="tag-chip" onclick="setTag('カスタム', this)">＋ 直接入力…</div>
+          </div>
+          
+          <div class="custom-tag-container" id="customTagContainer">
+            <input type="text" id="customTagInput" placeholder="宛名を入力（例：親友へ、〇〇ちゃんへ）">
           </div>
         </div>
 
@@ -346,11 +234,34 @@
       </div>
     </div>
 
+    <!-- タイムライン画面 -->
     <div id="list-view" style="display: none;">
       <div class="section-title">📦 タイムライン</div>
+      <div class="search-box">
+        <input type="search" id="timelineSearch" placeholder="🔍 メッセージや宛先を検索..." oninput="renderTimeline()">
+      </div>
       <div class="timeline" id="timeline"></div>
     </div>
 
+    <!-- カレンダー画面 -->
+    <div id="calendar-view" style="display: none;">
+      <div class="section-title">📅 カレンダー</div>
+      <div class="search-box">
+        <input type="search" id="calendarSearch" placeholder="🔍 メッセージ検索..." oninput="renderCalendarTimeline()">
+      </div>
+      <div class="card">
+        <div class="calendar-header">
+          <button onclick="changeMonth(-1)">◀ 前月</button>
+          <strong id="calendarMonthTitle">2026年11月</strong>
+          <button onclick="changeMonth(1)">次月 ▶</button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+      <div class="section-title" id="selectedDateTitle">選んだ日のメッセージ</div>
+      <div class="timeline" id="calendarTimeline"></div>
+    </div>
+
+    <!-- 写真集画面 -->
     <div id="photos-view" style="display: none;">
       <div class="section-title">📸 写真集</div>
       <div class="timeline" id="photoTimeline"></div>
@@ -362,6 +273,10 @@
       <span>⏱️</span>
       <span>タイムライン</span>
     </button>
+    <button class="nav-item" onclick="switchTab('calendar', this)">
+      <span>📅</span>
+      <span>カレンダー</span>
+    </button>
     <button class="nav-center-btn" onclick="switchTab('create', this)">+</button>
     <button class="nav-item" onclick="switchTab('photos', this)">
       <span>🖼️</span>
@@ -372,28 +287,83 @@
   <script>
     let selectedPeriod = '1年後';
     let selectedTag = '1年後の自分';
+    let targetDeliveryDateStr = '';
     let base64Image = null;
     let items = JSON.parse(localStorage.getItem('timeCapsuleItems') || '[]');
+    let currentCalendarDate = new Date();
+    let selectedCalendarDayStr = '';
+
+    const targetDateDisplay = document.getElementById('targetDateDisplay');
+    const dateInputContainer = document.getElementById('dateInputContainer');
+    const customDatepicker = document.getElementById('customDatepicker');
+    const customTagContainer = document.getElementById('customTagContainer');
+    const customTagInput = document.getElementById('customTagInput');
+
+    // 日付フォーマット YYYY/MM/DD
+    function formatDate(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}/${m}/${day}`;
+    }
+
+    // 初期日付の設定（1年後）
+    let defaultDate = new Date();
+    defaultDate.setFullYear(defaultDate.getFullYear() + 1);
+    targetDeliveryDateStr = formatDate(defaultDate);
+    targetDateDisplay.innerText = targetDeliveryDateStr;
 
     function setPeriod(period, el) {
       document.querySelectorAll('.options-grid .option-btn').forEach(b => b.classList.remove('selected'));
       el.classList.add('selected');
       selectedPeriod = period;
+
+      if (period === '日付指定') {
+        targetDateDisplay.style.display = 'none';
+        dateInputContainer.classList.add('active');
+        if (!customDatepicker.value) customDatepicker.valueAsDate = defaultDate;
+        updateCustomDate(customDatepicker);
+      } else {
+        dateInputContainer.classList.remove('active');
+        targetDateDisplay.style.display = 'block';
+        
+        let d = new Date();
+        if (period === '1ヶ月後') d.setMonth(d.getMonth() + 1);
+        else if (period === '3ヶ月後') d.setMonth(d.getMonth() + 3);
+        else if (period === '半年後') d.setMonth(d.getMonth() + 6);
+        else if (period === '1年後') d.setFullYear(d.getFullYear() + 1);
+        
+        targetDeliveryDateStr = formatDate(d);
+        targetDateDisplay.innerText = targetDeliveryDateStr;
+      }
+    }
+
+    function updateCustomDate(input) {
+      if (input.value) {
+        const d = new Date(input.value);
+        targetDeliveryDateStr = formatDate(d);
+        targetDateDisplay.innerText = targetDeliveryDateStr;
+      }
     }
 
     function setTag(tag, el) {
       document.querySelectorAll('.tags-container .tag-chip').forEach(c => c.classList.remove('selected'));
       el.classList.add('selected');
-      selectedTag = tag;
+
+      if (tag === 'カスタム') {
+        customTagContainer.classList.add('active');
+        selectedTag = 'カスタム';
+      } else {
+        customTagContainer.classList.remove('active');
+        selectedTag = tag;
+      }
     }
 
     function previewImage(input) {
       if (input.files && input.files[0]) {
         document.getElementById('file-name').innerText = '選択中: ' + input.files[0].name;
         const reader = new FileReader();
-        reader.onload = function(e) {
-          base64Image = e.target.result;
-        };
+        reader.onload = function(e) { base64Image = e.target.result; };
         reader.readAsDataURL(input.files[0]);
       }
     }
@@ -405,11 +375,20 @@
         return;
       }
 
+      let finalTag = selectedTag;
+      if (selectedTag === 'カスタム') {
+        finalTag = customTagInput.value.trim() || '未来の誰かへ';
+      }
+
+      const todayStr = formatDate(new Date());
+
       const newItem = {
+        id: Date.now(),
         text,
         period: selectedPeriod,
-        tag: selectedTag,
-        date: new Date().toLocaleDateString('ja-JP'),
+        tag: finalTag,
+        createdDate: todayStr, // 作成日
+        targetDate: targetDeliveryDateStr, // 届く日
         img: base64Image
       };
 
@@ -417,6 +396,7 @@
       localStorage.setItem('timeCapsuleItems', JSON.stringify(items));
       
       document.getElementById('memoText').value = '';
+      customTagInput.value = '';
       base64Image = null;
       document.getElementById('file-name').innerText = '';
       document.getElementById('imageInput').value = '';
@@ -425,9 +405,20 @@
       switchTab('timeline', document.querySelectorAll('.nav-item')[0]);
     }
 
+    function deleteItem(id) {
+      if (confirm('このメッセージを削除しますか？')) {
+        items = items.filter(item => item.id !== id);
+        localStorage.setItem('timeCapsuleItems', JSON.stringify(items));
+        renderTimeline();
+        renderCalendar();
+        renderPhotos();
+      }
+    }
+
     function switchTab(tabName, el) {
       document.getElementById('create-view').style.display = 'none';
       document.getElementById('list-view').style.display = 'none';
+      document.getElementById('calendar-view').style.display = 'none';
       document.getElementById('photos-view').style.display = 'none';
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
@@ -437,6 +428,10 @@
         document.getElementById('list-view').style.display = 'block';
         if(el) el.classList.add('active');
         renderTimeline();
+      } else if (tabName === 'calendar') {
+        document.getElementById('calendar-view').style.display = 'block';
+        if(el) el.classList.add('active');
+        renderCalendar();
       } else if (tabName === 'photos') {
         document.getElementById('photos-view').style.display = 'block';
         if(el) el.classList.add('active');
@@ -444,20 +439,32 @@
       }
     }
 
+    /* タイムライン描画（検索対応） */
     function renderTimeline() {
       const container = document.getElementById('timeline');
+      const keyword = document.getElementById('timelineSearch').value.toLowerCase();
       container.innerHTML = '';
-      if (items.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">まだメモがありません。</p>';
+
+      const filtered = items.filter(i => 
+        (i.text && i.text.toLowerCase().includes(keyword)) ||
+        (i.tag && i.tag.toLowerCase().includes(keyword))
+      );
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">条件に合うメモがありません。</p>';
         return;
       }
-      items.forEach(item => {
+
+      filtered.forEach(item => {
         const card = document.createElement('div');
         card.className = 'item-card';
         card.innerHTML = `
           <div class="item-header">
-            <span class="item-badge">${item.tag} (${item.period})</span>
-            <span class="item-date">${item.date} 投稿</span>
+            <span class="item-badge">${item.tag}</span>
+            <div class="item-header-right">
+              <span class="item-date">📝 ${item.createdDate} ➔ 🎁 ${item.targetDate}</span>
+              <button class="delete-btn" onclick="deleteItem(${item.id})">🗑️</button>
+            </div>
           </div>
           <div class="item-text">${item.text}</div>
           ${item.img ? `<img src="${item.img}" class="item-img">` : ''}
@@ -466,6 +473,108 @@
       });
     }
 
+    /* カレンダー機能 */
+    function changeMonth(diff) {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + diff);
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
+      document.getElementById('calendarMonthTitle').innerText = `${year}年 ${month + 1}月`;
+
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+
+      const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+      weekDays.forEach(w => {
+        const h = document.createElement('div');
+        h.className = 'calendar-day-head';
+        h.innerText = w;
+        grid.appendChild(h);
+      });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+      const prevLastDate = new Date(year, month, 0).getDate();
+
+      // 前月の埋め
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day other-month';
+        cell.innerHTML = `<span class="day-num">${prevLastDate - i}</span>`;
+        grid.appendChild(cell);
+      }
+
+      // 当月
+      for (let day = 1; day <= lastDate; day++) {
+        const dateStr = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day';
+
+        // 作成日かお届け日か判定
+        const hasCreated = items.some(i => i.createdDate === dateStr);
+        const hasTarget = items.some(i => i.targetDate === dateStr);
+
+        let badges = '';
+        if (hasCreated) badges += '<span class="event-badge">📝作成</span>';
+        if (hasTarget) badges += '<span class="event-badge">🎁お届け</span>';
+
+        cell.innerHTML = `<span class="day-num">${day}</span>${badges}`;
+        cell.onclick = () => selectCalendarDay(dateStr);
+        grid.appendChild(cell);
+      }
+
+      renderCalendarTimeline();
+    }
+
+    function selectCalendarDay(dateStr) {
+      selectedCalendarDayStr = dateStr;
+      document.getElementById('selectedDateTitle').innerText = `${dateStr} のメッセージ`;
+      renderCalendarTimeline();
+    }
+
+    function renderCalendarTimeline() {
+      const container = document.getElementById('calendarTimeline');
+      const keyword = document.getElementById('calendarSearch').value.toLowerCase();
+      container.innerHTML = '';
+
+      let filtered = items;
+
+      if (keyword) {
+        filtered = filtered.filter(i => 
+          (i.text && i.text.toLowerCase().includes(keyword)) ||
+          (i.tag && i.tag.toLowerCase().includes(keyword))
+        );
+      } else if (selectedCalendarDayStr) {
+        filtered = filtered.filter(i => i.createdDate === selectedCalendarDayStr || i.targetDate === selectedCalendarDayStr);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">メッセージはありません。</p>';
+        return;
+      }
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="item-header">
+            <span class="item-badge">${item.tag}</span>
+            <div class="item-header-right">
+              <span class="item-date">📝 ${item.createdDate} ➔ 🎁 ${item.targetDate}</span>
+              <button class="delete-btn" onclick="deleteItem(${item.id})">🗑️</button>
+            </div>
+          </div>
+          <div class="item-text">${item.text}</div>
+          ${item.img ? `<img src="${item.img}" class="item-img">` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    /* 写真集 */
     function renderPhotos() {
       const container = document.getElementById('photoTimeline');
       container.innerHTML = '';
@@ -479,8 +588,11 @@
         card.className = 'item-card';
         card.innerHTML = `
           <div class="item-header">
-            <span class="item-badge">${item.tag} (${item.period})</span>
-            <span class="item-date">${item.date}</span>
+            <span class="item-badge">${item.tag}</span>
+            <div class="item-header-right">
+              <span class="item-date">📝 ${item.createdDate}</span>
+              <button class="delete-btn" onclick="deleteItem(${item.id})">🗑️</button>
+            </div>
           </div>
           <img src="${item.img}" class="item-img">
           <div class="item-text" style="margin-top:8px;">${item.text}</div>
