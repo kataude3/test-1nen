@@ -127,13 +127,20 @@
     .date-display {
       background: #fafaf9; border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; font-size: 0.95rem; color: var(--sub-text); margin-top: 8px;
     }
-    .tags-container { display: flex; flex-wrap: wrap; gap: 8px; }
+    
+    /* タグ関連スタイル */
+    .tags-container { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .tag-chip {
-      background: #ffffff; border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; cursor: pointer;
+      background: #ffffff; border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;
     }
     .tag-chip.selected { background: var(--primary-light); border-color: var(--primary); color: #92400e; font-weight: bold; }
-    .custom-tag-container { margin-top: 8px; display: none; }
-    .custom-tag-container.active { display: block; }
+    .tag-delete-x { font-size: 0.75rem; color: var(--danger); cursor: pointer; padding: 0 2px; }
+    .tag-add-btn {
+      background: #f1f5f9; border: 1px dashed var(--sub-text); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; color: var(--sub-text);
+    }
+    .custom-tag-row { display: flex; gap: 8px; margin-top: 8px; display: none; }
+    .custom-tag-row.active { display: flex; }
+
     .btn-submit {
       width: 100%; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2); margin-top: 10px;
     }
@@ -217,16 +224,13 @@
 
         <div class="form-group">
           <label>誰に贈る？（宛先タグ）</label>
-          <div class="tags-container">
-            <div class="tag-chip selected" onclick="setTag('1年後の自分', this)">1年後の自分</div>
-            <div class="tag-chip" onclick="setTag('冬の自分', this)">冬の自分</div>
-            <div class="tag-chip" onclick="setTag('次の来客前', this)">次の来客前</div>
-            <div class="tag-chip" onclick="setTag('契約更新時', this)">契約更新時</div>
-            <div class="tag-chip" onclick="setTag('カスタム', this)">＋ 直接入力…</div>
+          <div class="tags-container" id="tagsContainer">
+            <!-- JavaScriptで動的描画 -->
           </div>
           
-          <div class="custom-tag-container" id="customTagContainer">
-            <input type="text" id="customTagInput" placeholder="宛名を入力（例：親友へ、〇〇ちゃんへ）">
+          <div class="custom-tag-row" id="customTagRow">
+            <input type="text" id="customTagInput" placeholder="新しいタグ名を入力">
+            <button type="button" class="option-btn" onclick="addNewTag()" style="background:var(--primary); color:white; border:none; padding:0 16px;">追加</button>
           </div>
         </div>
 
@@ -286,20 +290,22 @@
 
   <script>
     let selectedPeriod = '1年後';
-    let selectedTag = '1年後の自分';
     let targetDeliveryDateStr = '';
     let base64Image = null;
     let items = JSON.parse(localStorage.getItem('timeCapsuleItems') || '[]');
     let currentCalendarDate = new Date();
     let selectedCalendarDayStr = '';
 
+    // タグの初期リスト（localStorageに保存・読み込み）
+    let tagsList = JSON.parse(localStorage.getItem('timeCapsuleTags') || JSON.stringify(['1年後の自分', '冬の自分', '次の来客前', '契約更新時']));
+    let selectedTag = tagsList[0] || '1年後の自分';
+
     const targetDateDisplay = document.getElementById('targetDateDisplay');
     const dateInputContainer = document.getElementById('dateInputContainer');
     const customDatepicker = document.getElementById('customDatepicker');
-    const customTagContainer = document.getElementById('customTagContainer');
+    const customTagRow = document.getElementById('customTagRow');
     const customTagInput = document.getElementById('customTagInput');
 
-    // 日付フォーマット YYYY/MM/DD
     function formatDate(d) {
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -307,11 +313,80 @@
       return `${y}/${m}/${day}`;
     }
 
-    // 初期日付の設定（1年後）
     let defaultDate = new Date();
     defaultDate.setFullYear(defaultDate.getFullYear() + 1);
     targetDeliveryDateStr = formatDate(defaultDate);
     targetDateDisplay.innerText = targetDeliveryDateStr;
+
+    // タグ一覧の描画
+    function renderTags() {
+      const container = document.getElementById('tagsContainer');
+      container.innerHTML = '';
+
+      tagsList.forEach(tag => {
+        const chip = document.createElement('div');
+        chip.className = `tag-chip ${selectedTag === tag ? 'selected' : ''}`;
+        
+        let html = `<span onclick="selectTag('${tag}')">${tag}</span>`;
+        // 初期タグ以外、またはタグが複数ある場合は削除用×を表示
+        if (tagsList.length > 1) {
+          html += `<span class="tag-delete-x" onclick="removeTag(event, '${tag}')">×</span>`;
+        }
+        chip.innerHTML = html;
+        container.appendChild(chip);
+      });
+
+      // 追加ボタン
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'tag-add-btn';
+      addBtn.innerText = '＋ 追加';
+      addBtn.onclick = toggleCustomTagRow;
+      container.appendChild(addBtn);
+    }
+
+    function selectTag(tag) {
+      selectedTag = tag;
+      renderTags();
+    }
+
+    function toggleCustomTagRow() {
+      customTagRow.classList.toggle('active');
+      if (customTagRow.classList.contains('active')) {
+        customTagInput.focus();
+      }
+    }
+
+    function addNewTag() {
+      const newTag = customTagInput.value.trim();
+      if (!newTag) return;
+      if (tagsList.includes(newTag)) {
+        alert('すでに存在するタグです');
+        return;
+      }
+      tagsList.push(newTag);
+      localStorage.setItem('timeCapsuleTags', JSON.stringify(tagsList));
+      selectedTag = newTag;
+      customTagInput.value = '';
+      customTagRow.classList.remove('active');
+      renderTags();
+    }
+
+    function removeTag(event, tag) {
+      event.stopPropagation();
+      if (tagsList.length <= 1) {
+        alert('最後のタグは削除できません');
+        return;
+      }
+      if (confirm(`タグ「${tag}」を削除しますか？`)) {
+        tagsList = tagsList.filter(t => t !== tag);
+        localStorage.setItem('timeCapsuleTags', JSON.stringify(tagsList));
+        if (selectedTag === tag) {
+          selectedTag = tagsList[0];
+        }
+        renderTags();
+      }
+    }
 
     function setPeriod(period, el) {
       document.querySelectorAll('.options-grid .option-btn').forEach(b => b.classList.remove('selected'));
@@ -346,19 +421,6 @@
       }
     }
 
-    function setTag(tag, el) {
-      document.querySelectorAll('.tags-container .tag-chip').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-
-      if (tag === 'カスタム') {
-        customTagContainer.classList.add('active');
-        selectedTag = 'カスタム';
-      } else {
-        customTagContainer.classList.remove('active');
-        selectedTag = tag;
-      }
-    }
-
     function previewImage(input) {
       if (input.files && input.files[0]) {
         document.getElementById('file-name').innerText = '選択中: ' + input.files[0].name;
@@ -375,20 +437,15 @@
         return;
       }
 
-      let finalTag = selectedTag;
-      if (selectedTag === 'カスタム') {
-        finalTag = customTagInput.value.trim() || '未来の誰かへ';
-      }
-
       const todayStr = formatDate(new Date());
 
       const newItem = {
         id: Date.now(),
         text,
         period: selectedPeriod,
-        tag: finalTag,
-        createdDate: todayStr, // 作成日
-        targetDate: targetDeliveryDateStr, // 届く日
+        tag: selectedTag,
+        createdDate: todayStr,
+        targetDate: targetDeliveryDateStr,
         img: base64Image
       };
 
@@ -396,7 +453,6 @@
       localStorage.setItem('timeCapsuleItems', JSON.stringify(items));
       
       document.getElementById('memoText').value = '';
-      customTagInput.value = '';
       base64Image = null;
       document.getElementById('file-name').innerText = '';
       document.getElementById('imageInput').value = '';
@@ -439,7 +495,6 @@
       }
     }
 
-    /* タイムライン描画（検索対応） */
     function renderTimeline() {
       const container = document.getElementById('timeline');
       const keyword = document.getElementById('timelineSearch').value.toLowerCase();
@@ -473,7 +528,6 @@
       });
     }
 
-    /* カレンダー機能 */
     function changeMonth(diff) {
       currentCalendarDate.setMonth(currentCalendarDate.getMonth() + diff);
       renderCalendar();
@@ -499,7 +553,6 @@
       const lastDate = new Date(year, month + 1, 0).getDate();
       const prevLastDate = new Date(year, month, 0).getDate();
 
-      // 前月の埋め
       for (let i = firstDay - 1; i >= 0; i--) {
         const cell = document.createElement('div');
         cell.className = 'calendar-day other-month';
@@ -507,13 +560,11 @@
         grid.appendChild(cell);
       }
 
-      // 当月
       for (let day = 1; day <= lastDate; day++) {
         const dateStr = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
         const cell = document.createElement('div');
         cell.className = 'calendar-day';
 
-        // 作成日かお届け日か判定
         const hasCreated = items.some(i => i.createdDate === dateStr);
         const hasTarget = items.some(i => i.targetDate === dateStr);
 
@@ -574,7 +625,6 @@
       });
     }
 
-    /* 写真集 */
     function renderPhotos() {
       const container = document.getElementById('photoTimeline');
       container.innerHTML = '';
@@ -600,6 +650,9 @@
         container.appendChild(card);
       });
     }
+
+    // 起動時にタグ一覧をレンダリング
+    renderTags();
   </script>
 </body>
 </html>
