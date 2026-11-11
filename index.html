@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>一年後の自分へ</title>
   
-  <!-- ホーム画面追加時のアイコン指定 -->
+  <!-- ホーム画面追加用の設定 -->
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="icon" href="icon.png" type="image/png">
-  
-  <!-- アプリ名指定（ホーム画面追加時） -->
   <meta name="apple-mobile-web-app-title" content="一年後の自分へ">
   <meta name="application-name" content="一年後の自分へ">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,222 +15,479 @@
 
   <style>
     :root {
-      --primary: #4f46e5;
-      --bg: #f8fafc;
+      --primary: #d97706; /* 優しいオレンジ・ゴールド系 */
+      --primary-light: #fef3c7;
+      --bg: #fffbf5;
       --card-bg: #ffffff;
       --text: #1e293b;
       --sub-text: #64748b;
+      --border: #e2e8f0;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
       color: var(--text);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
       min-height: 100vh;
+      padding-bottom: 90px;
     }
     header {
-      background: var(--card-bg);
+      background: #ffffff;
       padding: 16px;
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 10;
     }
-    main {
-      flex: 1;
-      padding: 16px;
-      max-width: 600px;
-      margin: 0 auto;
-      width: 100%;
-      box-sizing: border-box;
+    .header-title h1 {
+      font-size: 1.1rem;
+      color: #92400e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .form-card {
-      background: var(--card-bg);
+    .header-title p {
+      font-size: 0.75rem;
+      color: var(--sub-text);
+      margin-top: 2px;
+    }
+    .notification-btn {
+      background: var(--primary-light);
+      color: #b45309;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    main {
+      max-width: 500px;
+      margin: 0 auto;
       padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .section-title {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #92400e;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       margin-bottom: 20px;
+      border: 1px solid #fef3c7;
     }
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
     label {
       display: block;
       font-size: 0.85rem;
-      color: var(--sub-text);
-      margin-bottom: 4px;
       font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
     }
-    input[type="text"], textarea, select {
+    textarea {
       width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      background-color: #fafaf9;
+      resize: vertical;
+      min-height: 90px;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: #ffffff;
+    }
+    .photo-upload-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      background: #fafaf9;
+      cursor: pointer;
+      color: var(--sub-text);
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .photo-upload-box input {
+      display: none;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .option-btn {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 10px 8px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      text-align: center;
+      cursor: pointer;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .option-btn.selected {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: #92400e;
+      font-weight: bold;
+    }
+    .date-display {
+      background: #fafaf9;
+      border: 1px solid var(--border);
       padding: 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      box-sizing: border-box;
-      font-size: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--sub-text);
+      margin-top: 8px;
     }
-    button {
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tag-chip {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .tag-chip.selected {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: #92400e;
+      font-weight: bold;
+    }
+    .btn-submit {
       width: 100%;
-      background: var(--primary);
+      background: linear-gradient(135deg, #f59e0b, #d97706);
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 8px;
+      padding: 14px;
+      border-radius: 12px;
       font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+      margin-top: 10px;
+    }
+    /* ボトムナビゲーション */
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 0;
+      height: 70px;
+      z-index: 100;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--sub-text);
+      cursor: pointer;
+      background: none;
+      border: none;
+      flex: 1;
+    }
+    .nav-item.active {
+      color: var(--primary);
+      font-weight: bold;
+    }
+    .nav-center-btn {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);
+      position: relative;
+      top: -10px;
+      cursor: pointer;
+      border: none;
     }
     .timeline {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
     }
     .item-card {
-      background: var(--card-bg);
-      border-radius: 12px;
+      background: white;
+      border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      border: 1px solid var(--border);
+      padding: 16px;
+    }
+    .item-header {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .item-badge {
+      background: var(--primary-light);
+      color: #92400e;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+    .item-date {
+      font-size: 0.75rem;
+      color: var(--sub-text);
+    }
+    .item-text {
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      margin-top: 6px;
     }
     .item-img {
       width: 100%;
       max-height: 200px;
       object-fit: cover;
-    }
-    .item-body {
-      padding: 12px;
-    }
-    .item-tag {
-      display: inline-block;
-      background: #e0e7ff;
-      color: var(--primary);
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-    .item-text {
-      font-size: 0.95rem;
-      line-height: 1.4;
-      white-space: pre-wrap;
-    }
-    .item-date {
-      font-size: 0.75rem;
-      color: var(--sub-text);
-      margin-top: 8px;
+      border-radius: 8px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-  <header>一年後の自分へ</header>
+  <header>
+    <div class="header-title">
+      <h1>⏳ 一年後の自分へ</h1>
+      <p>未来へ届くタイムカプセル日記</p>
+    </div>
+    <button class="notification-btn" onclick="alert('通知テストを送信しました！')">🔔 通知テスト</button>
+  </header>
 
   <main>
-    <div class="form-card">
-      <div class="form-group">
-        <label>誰に届ける？</label>
-        <input type="text" id="targetUser" value="未来の自分へ" placeholder="例: 1年後の自分へ、次の冬の自分へ">
+    <div id="create-view">
+      <div class="section-title">✍️ 未来へのメッセージを作成</div>
+      
+      <div class="card">
+        <div class="form-group">
+          <label>メモ内容</label>
+          <textarea id="memoText" placeholder="例：冬物の服はほぼ捨てました。来年買ってください。またはサービス解約のリマインドなど"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>写真を添える（任意）</label>
+          <label class="photo-upload-box">
+            <span>📷 写真を選択または撮影</span>
+            <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
+          </label>
+          <div id="file-name" style="font-size: 0.8rem; color: var(--primary); margin-top: 4px; text-align: center;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>いつ届ける？（タイミング）</label>
+          <div class="options-grid">
+            <button type="button" class="option-btn" onclick="setPeriod('1ヶ月後', this)">1ヶ月後</button>
+            <button type="button" class="option-btn" onclick="setPeriod('3ヶ月後', this)">3ヶ月後</button>
+            <button type="button" class="option-btn" onclick="setPeriod('半年後', this)">半年後</button>
+            <button type="button" class="option-btn selected" onclick="setPeriod('1年後', this)">1年後</button>
+            <button type="button" class="option-btn" onclick="setPeriod('日付指定', this)" style="grid-column: span 2;">日付を直接指定</button>
+          </div>
+          <div class="date-display" id="targetDateDisplay">2027/11/11</div>
+        </div>
+
+        <div class="form-group">
+          <label>誰に贈る？（宛先タグ）</label>
+          <div class="tags-container">
+            <div class="tag-chip selected" onclick="setTag('1年後の自分', this)">1年後の自分</div>
+            <div class="tag-chip" onclick="setTag('冬の自分', this)">冬の自分</div>
+            <div class="tag-chip" onclick="setTag('次の来客前', this)">次の来客前</div>
+            <div class="tag-chip" onclick="setTag('契約更新時', this)">契約更新時</div>
+          </div>
+        </div>
+
+        <button class="btn-submit" onclick="saveItem()">タイムカプセルに保存する</button>
       </div>
-      <div class="form-group">
-        <label>お届けタイミング</label>
-        <select id="targetPeriod">
-          <option value="1ヶ月後">1ヶ月後</option>
-          <option value="半年後">半年後</option>
-          <option value="1年後" selected>1年後</option>
-          <option value="次の冬">次の冬</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>メッセージ・メモ</label>
-        <textarea id="memoText" rows="3" placeholder="服捨てたから買ってね、サービス解約してね など"></textarea>
-      </div>
-      <div class="form-group">
-        <label>写真</label>
-        <input type="file" id="imageInput" accept="image/*">
-      </div>
-      <button onclick="saveItem()">タイムカプセルに保存する</button>
     </div>
 
-    <h2>保存したメッセージ</h2>
-    <div class="timeline" id="timeline"></div>
+    <div id="list-view" style="display: none;">
+      <div class="section-title">📦 タイムライン</div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+
+    <div id="photos-view" style="display: none;">
+      <div class="section-title">📸 写真集</div>
+      <div class="timeline" id="photoTimeline"></div>
+    </div>
   </main>
 
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('timeline', this)">
+      <span>⏱️</span>
+      <span>タイムライン</span>
+    </button>
+    <button class="nav-center-btn" onclick="switchTab('create', this)">+</button>
+    <button class="nav-item" onclick="switchTab('photos', this)">
+      <span>🖼️</span>
+      <span>写真集</span>
+    </button>
+  </nav>
+
   <script>
+    let selectedPeriod = '1年後';
+    let selectedTag = '1年後の自分';
+    let base64Image = null;
     let items = JSON.parse(localStorage.getItem('timeCapsuleItems') || '[]');
 
-    function render() {
-      const container = document.getElementById('timeline');
-      container.innerHTML = '';
-      if (items.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#94a3b8;">まだメモがありません。</p>';
-        return;
+    function setPeriod(period, el) {
+      document.querySelectorAll('.options-grid .option-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPeriod = period;
+    }
+
+    function setTag(tag, el) {
+      document.querySelectorAll('.tags-container .tag-chip').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedTag = tag;
+    }
+
+    function previewImage(input) {
+      if (input.files && input.files[0]) {
+        document.getElementById('file-name').innerText = '選択中: ' + input.files[0].name;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          base64Image = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
       }
-      items.forEach((item, index) => {
-        const card = document.createElement('div');
-        card.className = 'item-card';
-        card.innerHTML = `
-          ${item.img ? `<img src="${item.img}" class="item-img">` : ''}
-          <div class="item-body">
-            <span class="item-tag">宛先: ${item.targetUser} (${item.targetPeriod})</span>
-            <div class="item-text">${item.text}</div>
-            <div class="item-date">投稿日: ${item.date}</div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
     }
 
     function saveItem() {
-      const targetUser = document.getElementById('targetUser').value;
-      const targetPeriod = document.getElementById('targetPeriod').value;
       const text = document.getElementById('memoText').value;
-      const fileInput = document.getElementById('imageInput');
-
-      if (!text && !fileInput.files[0]) {
+      if (!text && !base64Image) {
         alert('メモか写真を入力してください');
         return;
       }
 
       const newItem = {
-        targetUser,
-        targetPeriod,
         text,
+        period: selectedPeriod,
+        tag: selectedTag,
         date: new Date().toLocaleDateString('ja-JP'),
-        img: null
+        img: base64Image
       };
 
-      if (fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          newItem.img = e.target.result;
-          items.unshift(newItem);
-          localStorage.setItem('timeCapsuleItems', JSON.stringify(items));
-          resetForm();
-          render();
-        };
-        reader.readAsDataURL(fileInput.files[0]);
-      } else {
-        items.unshift(newItem);
-        localStorage.setItem('timeCapsuleItems', JSON.stringify(items));
-        resetForm();
-        render();
+      items.unshift(newItem);
+      localStorage.setItem('timeCapsuleItems', JSON.stringify(items));
+      
+      document.getElementById('memoText').value = '';
+      base64Image = null;
+      document.getElementById('file-name').innerText = '';
+      document.getElementById('imageInput').value = '';
+
+      alert('タイムカプセルに保存しました！');
+      switchTab('timeline', document.querySelectorAll('.nav-item')[0]);
+    }
+
+    function switchTab(tabName, el) {
+      document.getElementById('create-view').style.display = 'none';
+      document.getElementById('list-view').style.display = 'none';
+      document.getElementById('photos-view').style.display = 'none';
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+      if (tabName === 'create') {
+        document.getElementById('create-view').style.display = 'block';
+      } else if (tabName === 'timeline') {
+        document.getElementById('list-view').style.display = 'block';
+        if(el) el.classList.add('active');
+        renderTimeline();
+      } else if (tabName === 'photos') {
+        document.getElementById('photos-view').style.display = 'block';
+        if(el) el.classList.add('active');
+        renderPhotos();
       }
     }
 
-    function resetForm() {
-      document.getElementById('memoText').value = '';
-      document.getElementById('imageInput').value = '';
+    function renderTimeline() {
+      const container = document.getElementById('timeline');
+      container.innerHTML = '';
+      if (items.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">まだメモがありません。</p>';
+        return;
+      }
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="item-header">
+            <span class="item-badge">${item.tag} (${item.period})</span>
+            <span class="item-date">${item.date} 投稿</span>
+          </div>
+          <div class="item-text">${item.text}</div>
+          ${item.img ? `<img src="${item.img}" class="item-img">` : ''}
+        `;
+        container.appendChild(card);
+      });
     }
 
-    render();
+    function renderPhotos() {
+      const container = document.getElementById('photoTimeline');
+      container.innerHTML = '';
+      const photoItems = items.filter(i => i.img);
+      if (photoItems.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">写真付きのメモがまだありません。</p>';
+        return;
+      }
+      photoItems.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="item-header">
+            <span class="item-badge">${item.tag} (${item.period})</span>
+            <span class="item-date">${item.date}</span>
+          </div>
+          <img src="${item.img}" class="item-img">
+          <div class="item-text" style="margin-top:8px;">${item.text}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
   </script>
 </body>
 </html>
