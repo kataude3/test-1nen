@@ -129,7 +129,6 @@
       background: #fafaf9; border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; font-size: 0.95rem; color: var(--sub-text); margin-top: 8px;
     }
     
-    /* タグ関連スタイル */
     .tags-container { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .tag-chip {
       background: #ffffff; border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;
@@ -146,11 +145,9 @@
       width: 100%; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2); margin-top: 10px;
     }
 
-    /* カレンダー表示エリア */
     .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
     .calendar-nav-group { display: flex; gap: 4px; align-items: center; }
     .calendar-header button { background: none; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
-    .calendar-header .jump-btn { background: var(--primary-light); color: #92400e; border-color: var(--primary); font-weight: bold; }
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
     .calendar-day-head { font-weight: bold; font-size: 0.8rem; padding: 6px 0; color: var(--sub-text); }
     .calendar-day {
@@ -160,27 +157,26 @@
     .calendar-day .day-num { font-weight: bold; }
     .calendar-day .event-badge { font-size: 0.65rem; line-height: 1; margin-top: 2px; }
 
-    /* 保存完了トースト通知（z-indexを高くして確実に前面表示） */
+    /* トースト通知 */
     #toastMessage {
       position: fixed;
-      top: 30px;
+      top: 40px;
       left: 50%;
-      transform: translateX(-50%) translateY(-120px);
+      transform: translateX(-50%) translateY(-150px);
       background: var(--success);
       color: white;
-      padding: 12px 28px;
+      padding: 14px 30px;
       border-radius: 30px;
       font-weight: bold;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      transition: transform 0.3s ease;
-      z-index: 99999;
-      font-size: 1rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 999999;
+      font-size: 1.05rem;
     }
     #toastMessage.show {
       transform: translateX(-50%) translateY(0);
     }
 
-    /* ボトムナビ */
     nav.bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; height: 70px; z-index: 100;
     }
@@ -202,7 +198,6 @@
 </head>
 <body>
 
-  <!-- 保存完了トースト通知 -->
   <div id="toastMessage">✨ 保存しました！</div>
 
   <header>
@@ -214,7 +209,6 @@
   </header>
 
   <main>
-    <!-- 作成画面 -->
     <div id="create-view">
       <div class="section-title">✍️ 未来へのメッセージを作成</div>
       <div class="card">
@@ -226,7 +220,7 @@
         <div class="form-group">
           <label>写真を添える（任意）</label>
           <label class="photo-upload-box">
-            <span>📷 写真を選択または撮影</span>
+            <span id="uploadLabelText">📷 写真を選択または撮影</span>
             <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
           </label>
           <div id="file-name" style="font-size: 0.8rem; color: var(--primary); margin-top: 4px; text-align: center;"></div>
@@ -262,7 +256,6 @@
       </div>
     </div>
 
-    <!-- タイムライン画面 -->
     <div id="list-view" style="display: none;">
       <div class="section-title">📦 タイムライン</div>
       <div class="search-box">
@@ -271,11 +264,9 @@
       <div class="timeline" id="timeline"></div>
     </div>
 
-    <!-- カレンダー画面 -->
     <div id="calendar-view" style="display: none;">
       <div class="section-title">📅 カレンダー</div>
       
-      <!-- 検索窓 -->
       <div class="search-box" id="calendarSearchBox">
         <input type="search" id="calendarSearch" placeholder="🔍 メッセージ検索..." oninput="renderCalendarTimeline()">
       </div>
@@ -284,7 +275,6 @@
         <div class="calendar-header">
           <div class="calendar-nav-group">
             <button onclick="changeMonth(-1)">◀ 前月</button>
-            <!-- 日付指定と同じ感覚で簡単に年月を選べるカレンダー入力 -->
             <input type="month" id="calendarMonthPicker" onchange="jumpToMonth(this)" style="padding:4px; border:1px solid var(--border); border-radius:6px; font-size:0.8rem; background:#fafaf9;">
             <button onclick="changeMonth(1)">次月 ▶</button>
           </div>
@@ -296,7 +286,6 @@
       <div class="timeline" id="calendarTimeline"></div>
     </div>
 
-    <!-- 写真集画面 -->
     <div id="photos-view" style="display: none;">
       <div class="section-title">📸 写真集</div>
       <div class="timeline" id="photoTimeline"></div>
@@ -457,7 +446,6 @@
       }
     }
 
-    // 保存処理 ＆ 入力内容の完全クリア ＆ トースト通知
     function saveItem() {
       const text = document.getElementById('memoText').value;
       if (!text && !base64Image) {
@@ -480,15 +468,15 @@
       items.unshift(newItem);
       localStorage.setItem('timeCapsuleItems', JSON.stringify(items));
       
-      // 入力内容を完全に消去
+      // 入力内容とファイルの完全クリア
       document.getElementById('memoText').value = '';
       base64Image = null;
-      document.getElementById('file-name').innerText = '';
       document.getElementById('imageInput').value = '';
+      document.getElementById('file-name').innerText = '';
       customTagInput.value = '';
       customTagRow.classList.remove('active');
 
-      // 保存しました通知（トースト）を表示
+      // トースト通知を表示
       showToast();
 
       // タイムラインへ移動
@@ -522,6 +510,7 @@
 
       if (tabName === 'create') {
         document.getElementById('create-view').style.display = 'block';
+        if(el) el.classList.add('active');
       } else if (tabName === 'timeline') {
         document.getElementById('list-view').style.display = 'block';
         if(el) el.classList.add('active');
@@ -577,7 +566,6 @@
       renderCalendar();
     }
 
-    // カレンダーの月を簡単選択
     function jumpToMonth(input) {
       if (input.value) {
         const [y, m] = input.value.split('-');
@@ -592,7 +580,6 @@
       const month = currentCalendarDate.getMonth();
       document.getElementById('calendarMonthTitle').innerText = `${year}年 ${month + 1}月`;
       
-      // 月選択ピッカーの値も同期
       const mStr = String(month + 1).padStart(2, '0');
       document.getElementById('calendarMonthPicker').value = `${year}-${mStr}`;
 
