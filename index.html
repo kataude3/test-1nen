@@ -157,7 +157,7 @@
     .calendar-day .day-num { font-weight: bold; }
     .calendar-day .event-badge { font-size: 0.65rem; line-height: 1; margin-top: 2px; }
 
-    /* トースト通知（確実に最前面に表示） */
+    /* トースト通知 */
     #toastMessage {
       position: fixed;
       top: 40px;
@@ -195,6 +195,9 @@
     .delete-btn { background: none; border: none; color: var(--danger); font-size: 0.75rem; cursor: pointer; }
     .item-text { font-size: 0.95rem; white-space: pre-wrap; margin-top: 6px; }
     .item-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 10px; }
+    .calendar-export-btn {
+      background: #f1f5f9; border: 1px solid var(--border); color: #334155; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer; margin-top: 8px; display: inline-flex; align-items: center; gap: 4px;
+    }
   </style>
 </head>
 <body>
@@ -206,11 +209,10 @@
       <h1>⏳ 一年後の自分へ</h1>
       <p>未来へ届くタイムカプセル日記</p>
     </div>
-    <button class="notification-btn" onclick="alert('通知テストを送信しました！')">🔔 通知テスト</button>
+    <button class="notification-btn" onclick="alert('【使い方】\n保存時に自動でカレンダー登録ファイル(.ics)が作成されます。タップしてiPhoneのカレンダーに追加すると、指定日に通知が届きます！')">💡 使い方</button>
   </header>
 
   <main>
-    <!-- 作成画面 -->
     <div id="create-view">
       <div class="section-title">✍️ 未来へのメッセージを作成</div>
       <div class="card">
@@ -254,11 +256,10 @@
           </div>
         </div>
 
-        <button class="btn-submit" onclick="saveItem()">タイムカプセルに保存する</button>
+        <button class="btn-submit" onclick="saveItem()">タイムカプセルに保存 ＆ カレンダー登録</button>
       </div>
     </div>
 
-    <!-- タイムライン画面 -->
     <div id="list-view" style="display: none;">
       <div class="section-title">📦 タイムライン</div>
       <div class="search-box">
@@ -267,7 +268,6 @@
       <div class="timeline" id="timeline"></div>
     </div>
 
-    <!-- カレンダー画面 -->
     <div id="calendar-view" style="display: none;">
       <div class="section-title">📅 カレンダー</div>
       
@@ -279,7 +279,6 @@
         <div class="calendar-header">
           <div class="calendar-nav-group">
             <button onclick="changeMonth(-1)">◀ 前月</button>
-            <!-- 日付指定と同じ感覚で簡単に年月を選べるピッカー -->
             <input type="month" id="calendarMonthPicker" onchange="jumpToMonth(this)" style="padding:4px; border:1px solid var(--border); border-radius:6px; font-size:0.8rem; background:#fafaf9;">
             <button onclick="changeMonth(1)">次月 ▶</button>
           </div>
@@ -291,7 +290,6 @@
       <div class="timeline" id="calendarTimeline"></div>
     </div>
 
-    <!-- 写真集画面 -->
     <div id="photos-view" style="display: none;">
       <div class="section-title">📸 写真集</div>
       <div class="timeline" id="photoTimeline"></div>
@@ -452,7 +450,42 @@
       }
     }
 
-    // 保存処理 ＆ 入力内容・ファイルの完全消去 ＆ トースト通知
+    // icsファイル（カレンダー登録用）を生成してダウンロードさせる関数
+    function downloadCalendarEvent(targetDateStr, memoText, tag) {
+      const cleanDate = targetDateStr.replace(/\//g, '');
+      const summary = `【タイムカプセル】${tag}からのメッセージ`;
+      const description = memoText ? memoText.replace(/\n/g, '\\n') : '未来の自分からのメッセージが届きました！アプリを開いて確認しましょう。';
+
+      const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Time Capsule App//JA',
+        'BEGIN:VEVENT',
+        `DTSTAMP:${cleanDate}T090000Z`,
+        `DTSTART;VALUE=DATE:${cleanDate}`,
+        `DTEND;VALUE=DATE:${cleanDate}`,
+        `SUMMARY:${summary}`,
+        `DESCRIPTION:${description}`,
+        'BEGIN:VALARM',
+        'TRIGGER:-PT0M', // 当日の朝（または設定時間）に通知
+        'ACTION:DISPLAY',
+        'DESCRIPTION:Reminder',
+        'END:VALARM',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `timecapsule_${cleanDate}.ics`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
     function saveItem() {
       const text = document.getElementById('memoText').value;
       if (!text && !base64Image) {
@@ -475,18 +508,18 @@
       items.unshift(newItem);
       localStorage.setItem('timeCapsuleItems', JSON.stringify(items));
       
-      // ▼ 入力フォーム、ファイル選択、プレビュー表示を完全にクリア
+      // カレンダー用.icsファイルを自動ダウンロード（iPhoneのカレンダーアプリが反応します）
+      downloadCalendarEvent(targetDeliveryDateStr, text, selectedTag);
+
+      // フォームクリア
       document.getElementById('memoText').value = '';
       base64Image = null;
       document.getElementById('imageInput').value = '';
       document.getElementById('file-name').innerText = '';
-      document.getElementById('customTagInput').value = '';
+      customTagInput.value = '';
       customTagRow.classList.remove('active');
 
-      // ▼ トースト通知を確実に表示
       showToast();
-
-      // タイムラインへ移動
       switchTab('timeline', document.querySelectorAll('.nav-item')[0]);
     }
 
@@ -495,7 +528,7 @@
       toast.classList.add('show');
       setTimeout(() => {
         toast.classList.remove('show');
-      }, 2000);
+      }, 2500);
     }
 
     function deleteItem(id) {
@@ -563,6 +596,11 @@
           </div>
           <div class="item-text">${item.text}</div>
           ${item.img ? `<img src="${item.img}" class="item-img">` : ''}
+          <div>
+            <button class="calendar-export-btn" onclick="downloadCalendarEvent('${item.targetDate}', ${JSON.stringify(item.text)}, '${item.tag}')">
+              📅 この予定をカレンダーに追加
+            </button>
+          </div>
         `;
         container.appendChild(card);
       });
@@ -677,6 +715,11 @@
           </div>
           <div class="item-text">${item.text}</div>
           ${item.img ? `<img src="${item.img}" class="item-img">` : ''}
+          <div>
+            <button class="calendar-export-btn" onclick="downloadCalendarEvent('${item.targetDate}', ${JSON.stringify(item.text)}, '${item.tag}')">
+              📅 この予定をカレンダーに追加
+            </button>
+          </div>
         `;
         container.appendChild(card);
       });
@@ -703,6 +746,11 @@
           </div>
           <img src="${item.img}" class="item-img">
           <div class="item-text" style="margin-top:8px;">${item.text}</div>
+          <div>
+            <button class="calendar-export-btn" onclick="downloadCalendarEvent('${item.targetDate}', ${JSON.stringify(item.text)}, '${item.tag}')">
+              📅 この予定をカレンダーに追加
+            </button>
+          </div>
         `;
         container.appendChild(card);
       });
